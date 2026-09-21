@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LectureRec</string>
+    <string name="settings_title">设置</string>
+
+    <string name="btn_start">开始听课</string>
+    <string name="btn_stop">停止</string>
+    <string name="btn_finishing">正在收尾…</string>
+    <string name="just_stopped">刚刚已停止，稍等一下再开始</string>
+    <string name="btn_copy_all">复制全文</string>
+    <string name="btn_polish">AI 校对</string>
+
+    <string name="state_idle">待机</string>
+    <string name="state_recording">正在听课…</string>
+
+    <string name="menu_settings">设置</string>
+    <string name="menu_retry">重传失败片段</string>
+    <string name="menu_export">导出 / 分享</string>
+    <string name="menu_clear">清空文本</string>
+
+    <string name="retry_none">没有待重传的片段</string>
+    <string name="retry_started">正在重传 %1$d 段…</string>
+    <string name="retry_done">重传完成：成功 %1$d / %2$d</string>
+
+    <string name="channel_name">听课录音</string>
+    <string name="channel_desc">录音转写常驻通知</string>
+
+    <string name="perm_need_mic">需要麦克风权限才能开始听课</string>
+    <string name="copied">已复制 %1$d 字</string>
+    <string name="nothing_to_copy">还没有内容可复制</string>
+    <string name="confirm_clear">确定清空当前文本？（已保存的文件不受影响）</string>
+    <string name="clear">清空</string>
+    <string name="cancel">取消</string>
+    <string name="polishing">正在校对…</string>
+    <string name="polish_done">校对完成</string>
+    <string name="polish_failed">校对失败：%1$s</string>
+    <string name="polish_result_title">校对结果</string>
+    <string name="save">保存</string>
+    <string name="battery_hint">为保证息屏后不被系统杀掉，请在系统设置中把本应用加入「电池优化白名单」并允许「后台运行」。</string>
+    <string name="no_file_yet">还没有生成文件</string>
+
+    <string name="settings_asr_header">语音识别（ASR）</string>
+    <string name="settings_preset_label">服务预设（选择后会自动填入下方地址与模型，可再手改）</string>
+    <string name="settings_base_url">接口地址 Base URL</string>
+    <string name="settings_api_key">API Key</string>
+    <string name="settings_model">模型名</string>
+    <string name="settings_language">语言代码（zh / en，留空为自动）</string>
+    <string name="settings_hotwords">课程热词（逗号或换行分隔，会作为 prompt 提升专有名词准确率）</string>
+    <string name="settings_course_title">课程名（用于生成文件名）</string>
+    <string name="settings_vad_label">断句引擎（Silero 能区分人声与噪声，能量法只认响度；加载失败会自动回退）</string>
+    <string name="settings_concurrency_label">上传并发路数（瓶颈是每个请求的固定开销，并发数约等于吞吐倍数）</string>
+    <string name="settings_timestamp_label">时间戳显示（每分钟一次可让笔记读起来连贯；「复制全文」本来就不带时间戳）</string>
+    <string name="settings_polish_header">AI 校对（LLM 后处理）</string>
+    <string name="settings_polish_enable">启用 AI 校对</string>
+    <string name="settings_polish_base">校对接口地址</string>
+    <string name="settings_polish_key">校对 API Key</string>
+    <string name="settings_polish_model">校对模型名</string>
+    <string name="saved">已保存</string>
+    <string name="restored">已恢复上次记录 %1$d 句</string>
+    <string name="settings_missing_key">还没填 API Key，录音后会上传失败</string>
+</resources>

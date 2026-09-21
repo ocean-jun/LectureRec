@@ -1,0 +1,23 @@
+# Gradle
+.gradle/
+build/
+app/build/
+
+# 本机专属路径，不该进仓库（各人 SDK 位置不同）
+local.properties
+
+# IDE
+.idea/
+*.iml
+captures/
+
+# 构建产物：APK 用 GitHub Release 分发，不放仓库里（单个 25MB）
+dist/
+
+# 签名文件，任何时候都不该提交
+*.jks
+*.keystore
+
+# 系统
+.DS_Store
+Thumbs.db
