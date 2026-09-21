@@ -11,8 +11,8 @@ android {
         applicationId = "com.dsh.lecturerec"
         minSdk = 26
         targetSdk = 34
-        versionCode = 7
-        versionName = "1.9"
+        versionCode = 8
+        versionName = "2.0"
 
         // ONNX Runtime 会给每个 ABI 各带一份原生库，全带上 APK 直接翻倍。
         // 只保留 arm64-v8a（近十年的手机都是）；要支持 32 位老机型就在这里加回 armeabi-v7a。

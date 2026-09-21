@@ -17,6 +17,11 @@
     <string name="menu_retry">重传失败片段</string>
     <string name="menu_export">导出 / 分享</string>
     <string name="menu_clear">清空文本</string>
+    <string name="menu_clear_failed">清空留底音频</string>
+
+    <string name="retry_pending_hint">留底 %1$d 段音频还没转成文字 · 菜单 →「重传失败片段」可补回</string>
+    <string name="confirm_clear_failed">确定清空 %1$d 段留底音频？清掉之后就再也补不回来了。</string>
+    <string name="cleared_failed">已清空留底</string>
 
     <string name="retry_none">没有待重传的片段</string>
     <string name="retry_started">正在重传 %1$d 段…</string>

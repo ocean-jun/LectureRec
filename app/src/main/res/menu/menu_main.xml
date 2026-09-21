@@ -18,4 +18,8 @@
         android:id="@+id/action_clear"
         android:title="@string/menu_clear"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_clear_failed"
+        android:title="@string/menu_clear_failed"
+        app:showAsAction="never" />
 </menu>

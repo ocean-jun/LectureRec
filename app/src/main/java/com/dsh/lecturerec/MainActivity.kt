@@ -158,12 +158,36 @@ class MainActivity : AppCompatActivity() {
         if (st.recording || elapsed > 0) sb.append("时长 ").append(TranscriptStore.fmt(elapsed)).append("   ")
         sb.append("已转写 ").append(TranscriptRepo.doneCount()).append(" 句")
         if (st.queued > 0) sb.append(" · 待上传 ").append(st.queued)
-        val failedTotal = maxOf(st.failed, failedOnDisk)
-        if (failedTotal > 0) sb.append(" · 失败 ").append(failedTotal)
+
+        // 本次失败和历史留底分开说：
+        // 以前只显示一个「失败 N」，把两者的数量混在一起，读起来像"App 坏了"，
+        // 而它实际的意思是"有 N 段音频留在本地、还没转成功"，而且接了 Key 之后是能补回来的。
+        if (st.failed > 0) sb.append(" · 本次失败 ").append(st.failed)
+        if (failedOnDisk > 0) {
+            sb.append("\n").append(getString(R.string.retry_pending_hint, failedOnDisk))
+        }
         st.lastError?.let { sb.append("\n").append(it.take(160)) }
 
         val detail = sb.toString()
         if (b.detailText.text?.toString() != detail) b.detailText.text = detail
+    }
+
+    private fun confirmClearFailed() {
+        val n = RetryStore.count(this)
+        if (n == 0) {
+            toast(getString(R.string.retry_none))
+            return
+        }
+        AlertDialog.Builder(this)
+            .setMessage(getString(R.string.confirm_clear_failed, n))
+            .setPositiveButton(R.string.clear) { _, _ ->
+                RetryStore.list(this).forEach { RetryStore.delete(it) }
+                failedOnDisk = 0
+                refreshText(TranscriptRepo.status.value)
+                toast(getString(R.string.cleared_failed))
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     // ---------------- 录音 ----------------
@@ -337,6 +361,10 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.action_clear -> {
                 confirmClear()
+                return true
+            }
+            R.id.action_clear_failed -> {
+                confirmClearFailed()
                 return true
             }
         }
