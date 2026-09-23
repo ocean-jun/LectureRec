@@ -53,6 +53,7 @@
     <string name="settings_hotwords">课程热词（逗号或换行分隔，会作为 prompt 提升专有名词准确率）</string>
     <string name="settings_course_title">课程名（用于生成文件名）</string>
     <string name="settings_vad_label">断句引擎（Silero 能区分人声与噪声，能量法只认响度；加载失败会自动回退）</string>
+    <string name="settings_sensitivity_label">收音灵敏度（手机离得远、说话小声就调到「高」）</string>
     <string name="settings_concurrency_label">上传并发路数（瓶颈是每个请求的固定开销，并发数约等于吞吐倍数）</string>
     <string name="settings_timestamp_label">时间戳显示（每分钟一次可让笔记读起来连贯；「复制全文」本来就不带时间戳）</string>
     <string name="settings_polish_header">AI 校对（LLM 后处理）</string>

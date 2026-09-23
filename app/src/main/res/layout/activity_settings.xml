@@ -143,6 +143,19 @@
             android:text="@string/settings_concurrency_label"
             android:textSize="12sp" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="@string/settings_sensitivity_label"
+            android:textSize="12sp" />
+
+        <Spinner
+            android:id="@+id/spinnerSensitivity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp" />
+
         <Spinner
             android:id="@+id/spinnerConcurrency"
             android:layout_width="match_parent"

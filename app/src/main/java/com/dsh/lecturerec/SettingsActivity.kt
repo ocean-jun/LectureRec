@@ -52,6 +52,12 @@ class SettingsActivity : AppCompatActivity() {
             DetectorFactory.LABELS
         )
 
+        b.spinnerSensitivity.adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            VadSensitivity.LABELS
+        )
+
         b.spinnerConcurrency.adapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_dropdown_item,
@@ -98,6 +104,7 @@ class SettingsActivity : AppCompatActivity() {
         b.etHotwords.setText(settings.hotwords)
         b.etTitle.setText(settings.courseTitle)
         b.spinnerVad.setSelection(DetectorFactory.indexOf(settings.vadEngine))
+        b.spinnerSensitivity.setSelection(VadSensitivity.indexOf(settings.sensitivity))
         b.spinnerConcurrency.setSelection(
             UploadTuning.concurrencyIndexOf(settings.uploadConcurrency)
         )
@@ -117,6 +124,7 @@ class SettingsActivity : AppCompatActivity() {
         settings.hotwords = b.etHotwords.text?.toString().orEmpty()
         settings.courseTitle = b.etTitle.text?.toString()?.trim().orEmpty()
         settings.vadEngine = DetectorFactory.keyOf(b.spinnerVad.selectedItemPosition)
+        settings.sensitivity = VadSensitivity.valueOf(b.spinnerSensitivity.selectedItemPosition)
         settings.uploadConcurrency =
             UploadTuning.CONCURRENCY_OPTIONS[b.spinnerConcurrency.selectedItemPosition]
         settings.timestampMode = Timestamps.keyOf(b.spinnerTimestamp.selectedItemPosition)

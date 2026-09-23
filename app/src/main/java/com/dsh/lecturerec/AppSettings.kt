@@ -81,6 +81,13 @@ class AppSettings(context: Context) {
         get() = getStr(K_TIMESTAMP, Timestamps.DEFAULT)
         set(v) = putStr(K_TIMESTAMP, v)
 
+    /** 收音灵敏度系数，见 [VadSensitivity]。小于 1 = 更灵敏。 */
+    var sensitivity: Double
+        get() = sp.getFloat(K_SENSITIVITY, VadSensitivity.DEFAULT.toFloat()).toDouble()
+        set(v) {
+            sp.edit().putFloat(K_SENSITIVITY, v.toFloat()).apply()
+        }
+
     var polishEnabled: Boolean
         get() = sp.getBoolean(K_POLISH_ON, false)
         set(v) {
@@ -117,6 +124,7 @@ class AppSettings(context: Context) {
         private const val K_VAD = "vad_engine"
         private const val K_CONCURRENCY = "upload_concurrency"
         private const val K_TIMESTAMP = "timestamp_mode"
+        private const val K_SENSITIVITY = "vad_sensitivity"
         private const val K_POLISH_ON = "polish_on"
         private const val K_P_BASE = "polish_base"
         private const val K_P_KEY = "polish_key"

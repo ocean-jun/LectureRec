@@ -12,6 +12,11 @@ package com.dsh.lecturerec
  */
 class VadSegmenter(
     private val detector: SpeechDetector,
+    /**
+     * 灵敏度系数，直接乘在检测器自带的阈值上。小于 1 = 更灵敏（远距离小声也触发）。
+     * 见 [VadSensitivity]。
+     */
+    sensitivity: Double = 1.0,
     private val sampleRate: Int = 16000,
     private val frameMs: Int = 20,
     private val startSpeechMs: Int = 80,
@@ -20,6 +25,14 @@ class VadSegmenter(
     private val maxSpeechMs: Int = 25000,
     private val prerollMs: Int = 240
 ) {
+    /** 实际生效的阈值（已应用灵敏度）。 */
+    val startThreshold: Double = (detector.startThreshold * sensitivity).coerceIn(0.02, 0.98)
+    val keepThreshold: Double = (detector.keepThreshold * sensitivity).coerceIn(0.01, startThreshold)
+
+    /** 最近一帧的人声概率，用于电平诊断。 */
+    var lastProbability: Double = 0.0
+        private set
+
     private val startFrames = maxOf(1, startSpeechMs / frameMs)
     private val endSilenceFrames = maxOf(1, endSilenceMs / frameMs)
     private val minSpeechFrames = maxOf(1, minSpeechMs / frameMs)
@@ -50,9 +63,10 @@ class VadSegmenter(
         totalFrames++
         // 检测器无法判定时按静音处理：宁可不发，也不要往 ASR 灌垃圾
         val p = detector.probability(frame) ?: 0.0
+        lastProbability = p
 
         if (!inSpeech) {
-            if (p >= detector.startThreshold) {
+            if (p >= startThreshold) {
                 voicedRun++
                 if (voicedRun >= startFrames) {
                     inSpeech = true
@@ -73,7 +87,7 @@ class VadSegmenter(
         }
 
         utterance.add(frame.copyOf())
-        if (p >= detector.keepThreshold) silenceRun = 0 else silenceRun++
+        if (p >= keepThreshold) silenceRun = 0 else silenceRun++
 
         val tooLong = utterance.size >= maxSpeechFrames
         val closed = silenceRun >= endSilenceFrames

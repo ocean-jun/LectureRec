@@ -55,6 +55,11 @@ class RecorderService : Service() {
     @Volatile private var sessionStamp = 0L
     @Volatile private var lastNotifyAt = 0L
 
+    /** 电平诊断的游标（只在前 30 秒打点，避免长课堂刷屏）。 */
+    private var nextMeterAtMs = METER_INTERVAL_MS
+    private var meterPeakRms = 0
+    private var meterPeakP = 0.0
+
     /** 已组成批次但还没出结果的音频，收尾超时时用来兜底留底。 */
     private val pending = ConcurrentHashMap<Long, ByteArray>()
 
@@ -191,13 +196,20 @@ class RecorderService : Service() {
             // 放在这之前的话，用户一按下按钮就说话，第一个字会被直接丢掉。
             // 现在这段时间的音频先进 AudioRecord 的内部缓冲（≥1 秒），随后照样读得到。
             capture.start()
-            Log.i(TAG, "AudioRecord started (+${System.currentTimeMillis() - t0}ms)")
+            Log.i(
+                TAG,
+                "AudioRecord started (+${System.currentTimeMillis() - t0}ms) 音源=${capture.sourceName()}"
+            )
 
             val det = DetectorFactory.create(this@RecorderService, settings.vadEngine)
             detector = det
-            val vad = VadSegmenter(det)
+            val vad = VadSegmenter(det, settings.sensitivity)
             vadName = vad.detectorName
-            Log.i(TAG, "VAD 就绪: $vadName (+${System.currentTimeMillis() - t0}ms)")
+            Log.i(
+                TAG,
+                "VAD 就绪: $vadName 起判阈值=${"%.2f".format(vad.startThreshold)} " +
+                    "灵敏度=${"%.2f".format(settings.sensitivity)} (+${System.currentTimeMillis() - t0}ms)"
+            )
 
             while (isActive && running) {
                 val n = capture.readFrame(frame)
@@ -222,6 +234,25 @@ class RecorderService : Service() {
                 reconnectAttempts = 0
                 frameIndex++
                 vad.accept(frame)?.let { pcm -> enqueue(pcm, frameIndex, queue) }
+
+                // 前 30 秒每 2 秒打一条电平诊断。
+                // 用来回答「小声说话到底有没有被拾到、VAD 给了多少概率」——
+                // 没有这个数据就只能猜该调灵敏度还是该换音源。
+                if (frameIndex * FRAME_MS < METER_WINDOW_MS) {
+                    val r = rmsOf(frame)
+                    if (r > meterPeakRms) meterPeakRms = r
+                    if (vad.lastProbability > meterPeakP) meterPeakP = vad.lastProbability
+                    if (frameIndex * FRAME_MS >= nextMeterAtMs) {
+                        nextMeterAtMs += METER_INTERVAL_MS
+                        Log.i(
+                            TAG,
+                            "电平峰值 rms=$meterPeakRms（满量程 32768） 人声概率峰值=" +
+                                "%.2f".format(meterPeakP)
+                        )
+                        meterPeakRms = 0
+                        meterPeakP = 0.0
+                    }
+                }
             }
             vad.finish()?.let { pcm -> enqueue(pcm, frameIndex, queue) }
             speechRatio = vad.speechRatio
@@ -346,6 +377,16 @@ class RecorderService : Service() {
         // 完成顺序可能是乱的，必须按录音顺序写文件，否则导出的笔记时间戳会来回跳
         flushInOrder()
         publishStatus(force = true)
+    }
+
+    /** 一帧的均方根，用于电平诊断（满量程 32768）。 */
+    private fun rmsOf(frame: ShortArray): Int {
+        var sum = 0.0
+        for (s in frame) {
+            val v = s.toDouble()
+            sum += v * v
+        }
+        return kotlin.math.sqrt(sum / frame.size).toInt()
     }
 
     /** 收尾超时的兜底：把没传完的音频全部留底，绝不静默丢掉课堂内容。 */
@@ -527,6 +568,10 @@ class RecorderService : Service() {
 
         /** 收尾最多等这么久，之后就把没传完的音频转留底 —— 保证「停止」一定能停下来。 */
         private const val DRAIN_TIMEOUT_MS = 20_000L
+
+        /** 电平诊断：只录开头这段时间，每 2 秒打一条。 */
+        private const val METER_WINDOW_MS = 30_000L
+        private const val METER_INTERVAL_MS = 2_000L
 
         /** 队列里没成批的句子留底时用的编号偏移，避免和批次编号撞车。 */
         private const val RETRY_UTTERANCE_OFFSET = 1_000_000L
